@@ -1,6 +1,6 @@
 # Remote-Compiler
 
-Send code files from client, picked up and processed by server, compiler responses and output object files and executables are sent back
+Send code files from client, picked up and processed by server, compiler responses, output object files and executables are sent back
 
 run client with server ip and file names as arguments
 
