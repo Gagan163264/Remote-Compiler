@@ -5,17 +5,19 @@ import os
 import shutil
 from _thread import *
 import subprocess
+import datetime
 
 ThreadCount = 0
 
+dump = open('dump.txt','a')
+print("Starting")
 s = socket.socket()
-print ("Socket successfully created")
 port = 1984
 s.bind(('',port))
-print(socket.gethostbyname(socket.gethostname()+ ".local"))
-print ("socket bound to %s" %(port))
+serv_ip = socket.gethostbyname(socket.gethostname()+ ".local")
+print('Listening on:{0}:{1}'.format(serv_ip,port))
 s.listen(5)
-print ("socket is listening")
+dump.write('\n[{0}]Server started on {1}:{2}\n'.format(str(datetime.datetime.now()),serv_ip,port))
 
 def client_handle(c):
     inc = c.recv(1024).decode()
@@ -36,6 +38,8 @@ def client_handle(c):
         with open(os.path.join(client_path,file),'w',encoding = 'utf-8') as f:
             f.write(data[file])
         print('Recieved ', file)
+        dump.write('[{0}]Recieved {3} from {1}:{2}\n'.format(str(datetime.datetime.now()),client_host,client_port,file))
+
 
 
     arg = ''
@@ -77,7 +81,7 @@ def client_handle(c):
         else:
             with open(os.path.join(respath,file),'r') as f:
                 response[file]=f.read()
-
+        dump.write('[{0}]Sent {3} to {1}:{2}\n'.format(str(datetime.datetime.now()),client_host,client_port,file))
         print('Sending ',file)
 
     response = json.dumps(response).encode('utf-8')
@@ -90,8 +94,10 @@ def client_handle(c):
 while True:
     c, (client_host, client_port) = s.accept()
     print('Connected to: ' + str(client_host) + ':' + str(client_port))
+    dump.write('[{0}]Connected to {1}:{2}\n'.format(str(datetime.datetime.now()),client_host,client_port))
     start_new_thread(client_handle, (c,))
     ThreadCount += 1
     print('Thread Number: ' + str(ThreadCount))
 
 s.close()
+dump.close()
