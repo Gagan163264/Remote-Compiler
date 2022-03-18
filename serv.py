@@ -86,6 +86,7 @@ def client_handle(c):
 
     response = json.dumps(response).encode('utf-8')
     c.send(response)
+    c.send('END'.encode('utf-8'))
     c.close()
     if os.path.exists(client_path):
         shutil.rmtree(client_path)

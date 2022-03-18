@@ -43,15 +43,18 @@ print('Compiling')
 
 
 while True:
-    inc = s.recv(1024)
+    inc = s.recv(1024).decode('utf-8')
     data = inc
     while inc:
-        inc = s.recv(1024)
+        inc = s.recv(1024).decode('utf-8')
+        if inc.endswith('END'):
+            data += inc[:-3]
+            break
         data += inc
     s.close()
     break
 
-response = json.loads(data.decode('utf-8'))
+response = json.loads(data)
 
 for file in response.keys():
     print("Recieved ", file)
