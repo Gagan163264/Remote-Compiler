@@ -5,22 +5,44 @@ import os
 from auth import encrypt,decrypt
 import shutil
 
-
 if(len(sys.argv)<=2):
-    sys.exit("No filename(s)/IP specified")
+    sys.exit("No target(s)/IP specified")
 
-host_ip = sys.argv[1]
+host_det = sys.argv[1]
+host_ip, host_port = host_det.split(':',1)
 socket.inet_aton(host_ip)
-print(host_ip)
-print('Connecting to ', host_ip)
+cli_ip = socket.gethostbyname(socket.gethostname()+ ".local")
+print('Client',cli_ip,'online')
+print('Connecting to ', host_det)
 
 en = 0
-if (sys.argv[2] == '-a'):
-    en = 1
+filelist = []
+count = 0
+netw = 0
+nc_dir_dict = {}
+for arg in sys.argv:
+    if (arg == '-a'):
+        en = 1
+
+    if count>=2 and netw == 0:
+        filelist.append(arg)
+    if netw == 1:
+        print(arg)
+        socket.inet_aton(arg)
+        nc_dir_dict[arg]=0
+    if (arg == '-n'):
+        netw = 1
+    count += 1
+
+if netw == 1:
+    nc_dir_dict[cli_ip]=0
+    with open('network-list.ncf','w') as f:
+        f.write(json.dumps(nc_dir_dict))
+    filelist.append('network-list.ncf')
 
 data = {}
 for file in os.listdir(os.curdir):
-    if en or file in sys.argv:
+    if en or file in filelist:
         print('Sending',file)
         with open(file,'r',encoding = 'utf-8') as f:
             data[file]=f.read()
@@ -34,13 +56,22 @@ except socket.error as err:
 
 
 
-port = 1984
+port = int(host_port)
 
 s.connect((host_ip, port))
 s.send(data.encode())
 s.send('END'.encode())
-print('Compiling')
 
+if netw==1:
+    print('Waiting for network clients:')
+    resp = s.recv(3).decode()
+    print(resp)
+    if(resp!='ACK'):
+        sys.exit('Other clients did not connect')
+    print('All files recieved successfully by server')
+
+
+print('Compiling')
 
 while True:
     inc = s.recv(1024).decode('utf-8')
