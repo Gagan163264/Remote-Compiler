@@ -126,24 +126,15 @@ def client_handle(c):
                 name,ext = file.rsplit(".",1)
                 if(ext == 'c'):
                     arg += os.path.join(client_path,file)+' '
-                    cmd = 'gcc -c '+os.path.join(client_path,file)+' -o '+ os.path.join(respath,name+'.o')
-                    #print(cmd)
-                    #os.system(cmd)
-                    result = subprocess.check_output(cmd, shell=True)
-                    if result:
-                        with open(os.path.join(respath,name+'_compile_res.txt'),'w',encoding='utf-8') as f:
-                            f.write(result.decode())
-        os.system('gcc '+arg+' -o '+ os.path.join(respath,'a'+'.out'))
-        result = subprocess.check_output('dir', shell=True)
-        if result:
-            with open(os.path.join(respath,'output_linux_compile_res.txt'),'w', encoding = 'utf-8') as f:
-                f.write(result.decode())
+                    cmd = 'gcc -c '+os.path.join(client_path,file)+' -o '+ os.path.join(respath,name+'.o')+' 2> '+ os.path.join(respath,name+'_compile_err.txt')
+                    print(cmd)
+                    os.system(cmd)
 
-        os.system('i686-w64-mingw32-gcc '+arg+' -o '+ os.path.join(respath,'a'+'.exe'))
-        result = subprocess.check_output('dir', shell=True)
-        if result:
-            with open(os.path.join(respath,'output_win_compile_res.txt'),'w', encoding = 'utf-8') as f:
-                f.write(result.decode())
+        cmd = 'gcc '+arg+' -o '+ os.path.join(respath,'a'+'.out')+' 2> '+os.path.join(respath,'output_linux_err.txt')
+        os.system(cmd)
+
+        cmd = 'i686-w64-mingw32-gcc '+arg+' -o '+ os.path.join(respath,'a'+'.exe')+' 2> '+os.path.join(respath,'output_win_err.txt')
+        os.system(cmd)
 
     if netw == 1:
         if nc_dir_path in job_list.keys():
@@ -157,7 +148,10 @@ def client_handle(c):
                 response[file]=f.read().decode('latin-1')
         else:
             with open(os.path.join(respath,file),'r') as f:
-                response[file]=f.read()
+                fileout = f.read()
+                if not fileout:
+                    fileout = 'NULL'
+                response[file]= fileout
         dump.write('[{0}]Sent {3} to {1}:{2}\n'.format(str(datetime.datetime.now()),client_host,client_port,file))
         print('Sending ',file)
 
@@ -165,11 +159,15 @@ def client_handle(c):
     c.send(response)
     c.send('END'.encode('utf-8'))
     c.close()
-    client_list[nc_dir_path]-=1
-    if(client_list[nc_dir_path]==0):
-        if os.path.exists(nc_dir_path):
-            shutil.rmtree(nc_dir_path)
-        client_list.pop(nc_dir_path)
+    if netw == 1:
+        client_list[nc_dir_path]-=1
+        if(client_list[nc_dir_path]==0):
+            if os.path.exists(nc_dir_path):
+                shutil.rmtree(nc_dir_path)
+            client_list.pop(nc_dir_path)
+    else:
+        if os.path.exists(client_path):
+            shutil.rmtree(client_path)
 
 
 while True:
