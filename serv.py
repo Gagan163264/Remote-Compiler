@@ -126,9 +126,9 @@ def client_handle(c):
                 name,ext = file.rsplit(".",1)
                 if(ext == 'c'):
                     arg += os.path.join(client_path,file)+' '
-                    cmd = 'gcc -c '+os.path.join(client_path,file)+' -o '+ os.path.join(respath,file+'.o')
-                    print(cmd)
-                    os.system(cmd)
+                    cmd = 'gcc -c '+os.path.join(client_path,file)+' -o '+ os.path.join(respath,name+'.o')
+                    #print(cmd)
+                    #os.system(cmd)
                     result = subprocess.check_output(cmd, shell=True)
                     if result:
                         with open(os.path.join(respath,name+'_compile_res.txt'),'w',encoding='utf-8') as f:
