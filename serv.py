@@ -149,12 +149,11 @@ def client_handle(c):
         else:
             with open(os.path.join(respath,file),'r') as f:
                 fileout = f.read()
-                if not fileout:
-                    fileout = 'NULL'
-                response[file]= fileout
+                if fileout:
+                    response[file]=fileout
         dump.write('[{0}]Sent {3} to {1}:{2}\n'.format(str(datetime.datetime.now()),client_host,client_port,file))
         print('Sending ',file)
-
+    
     response = json.dumps(response).encode('utf-8')
     c.send(response)
     c.send('END'.encode('utf-8'))

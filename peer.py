@@ -8,17 +8,13 @@ import shutil
 if(len(sys.argv)<=2):
     sys.exit("No target(s)/IP specified")
 
-host_det = sys.argv[1]
-host_ip, host_port = host_det.split(':',1)
-socket.inet_aton(host_ip)
-cli_ip = socket.gethostbyname(socket.gethostname()+ ".local")
-print('Client',cli_ip,'online')
-print('Connecting to ', host_det)
-
 en = 0
 filelist = []
 count = 0
 netw = 0
+verboseall = 1
+verboseni = 1
+
 nc_dir_dict = {}
 for arg in sys.argv:
     if (arg == '-a'):
@@ -27,12 +23,27 @@ for arg in sys.argv:
     if count>=2 and netw == 0:
         filelist.append(arg)
     if netw == 1:
-        print(arg)
+        if verboseall:print(arg)
         socket.inet_aton(arg)
         nc_dir_dict[arg]=0
-    if (arg == '-n'):
+    if arg == '-n':
         netw = 1
+    if arg == '-v':
+        verboseall = 0
+        verboseni = 0
+    if arg == '-vn':
+        verboseall = 0
     count += 1
+
+host_det = sys.argv[1]
+host_ip, host_port = host_det.split(':',1)
+socket.inet_aton(host_ip)
+cli_ip = socket.gethostbyname(socket.gethostname()+ ".local")
+if verboseall:
+    print('Client',cli_ip,'online')
+if verboseall:
+    print('Connecting to ', host_det)
+
 
 if netw == 1:
     nc_dir_dict[cli_ip]=0
@@ -43,16 +54,19 @@ if netw == 1:
 data = {}
 for file in os.listdir(os.curdir):
     if en or file in filelist:
-        print('Sending',file)
+        if verboseall:
+            print('Sending',file)
         with open(file,'r',encoding = 'utf-8') as f:
             data[file]=f.read()
 data = encrypt(json.dumps(data))
 
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    print ("Socket successfully created")
+    if verboseall:
+        print ("Socket successfully created")
 except socket.error as err:
-    print ("socket creation failed with error %s" %(err))
+    if verboseall:
+        print ("socket creation failed with error %s" %(err))
 
 
 
@@ -63,15 +77,17 @@ s.send(data.encode())
 s.send('END'.encode())
 
 if netw==1:
-    print('Waiting for network clients:')
+    if verboseall:
+        print('Waiting for network clients:')
     resp = s.recv(3).decode()
-    print(resp)
     if(resp!='ACK'):
         sys.exit('Other clients did not connect')
-    print('All files recieved successfully by server')
+    if verboseall:
+        print('All files recieved successfully by server')
 
 
-print('Compiling')
+if verboseall:
+    print('Compiling')
 
 while True:
     inc = s.recv(1024).decode('utf-8')
@@ -89,7 +105,8 @@ while True:
 response = json.loads(data)
 
 for file in response.keys():
-    print("Recieved ", file)
+    if verboseall:
+        print("Recieved ", file)
     name,ext = file.rsplit(".",1)
     if ext == 'exe' or ext == 'o' or ext == 'out':
         with open(file,'wb') as f:
@@ -97,5 +114,6 @@ for file in response.keys():
     else:
         with open(file,'w') as f:
             f.write(response[file])
-
-print('Completed')
+        if file.endswith('output_linux_err.txt'):
+            if verboseall or verboseni:
+                print('\n',response[file])
