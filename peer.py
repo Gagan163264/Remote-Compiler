@@ -12,8 +12,8 @@ en = 0
 filelist = []
 count = 0
 netw = 0
-verboseall = 1
-verboseni = 1
+verboseall = 0
+verboseni = 0
 
 nc_dir_dict = {}
 for arg in sys.argv:
@@ -29,10 +29,10 @@ for arg in sys.argv:
     if arg == '-n':
         netw = 1
     if arg == '-v':
-        verboseall = 0
-        verboseni = 0
+        verboseall = 1
+        verboseni = 1
     if arg == '-vn':
-        verboseall = 0
+        verboseall = 1
     count += 1
 
 host_det = sys.argv[1]
