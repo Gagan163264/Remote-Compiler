@@ -22,18 +22,17 @@ for arg in sys.argv:
 
     if count>=2 and netw == 0:
         filelist.append(arg)
-    if netw == 1:
-        if verboseall:print(arg)
-        socket.inet_aton(arg)
-        nc_dir_dict[arg]=0
     if arg == '-n':
         netw = 1
-    if arg == '-v':
+    elif arg == '-v':
         verboseall = 1
         verboseni = 1
-    if arg == '-vn':
+    elif arg == '-vn':
         verboseall = 0
         verboseni = 0
+    elif netw == 1:
+        socket.inet_aton(arg)
+        nc_dir_dict[arg]=0
     count += 1
 
 host_det = sys.argv[1]
