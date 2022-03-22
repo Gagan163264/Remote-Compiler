@@ -102,8 +102,8 @@ while True:
     s.close()
     break
 
-if inc.endswith('END'):
-    data += inc[:-3]
+if data.endswith('END'):
+    data = data[:-3]
 response = json.loads(data)
 
 for file in response.keys():
