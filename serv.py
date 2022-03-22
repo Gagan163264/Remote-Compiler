@@ -1,12 +1,13 @@
 import socket
 import json
-from auth import encrypt,decrypt
+from src.auth import encrypt,decrypt
 import os
 import shutil
 from _thread import *
 import subprocess
 import datetime
 from waiting import wait
+
 
 def is_something_ready(something, dict):
     if something in dict.keys():
@@ -26,7 +27,7 @@ ThreadCount = 0
 client_list = {}
 job_list = {}
 
-dump = open('dump.txt','a')
+dump = open(os.path.join('src','dump.txt'),'a')
 print("Starting")
 s = socket.socket()
 port = 1984
@@ -48,7 +49,6 @@ def client_handle(c):
         data += inc
     data = json.loads(decrypt(str(data)))
     client_path = os.path.join('shared',client_host)
-    print(client_path)
     if os.path.exists(client_path):
         shutil.rmtree(client_path)
     os.makedirs(client_path)

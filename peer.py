@@ -2,7 +2,7 @@ import socket
 import sys
 import json
 import os
-from auth import encrypt,decrypt
+from src.auth import encrypt,decrypt
 import shutil
 
 if(len(sys.argv)<=2):
