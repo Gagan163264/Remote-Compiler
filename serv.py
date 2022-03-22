@@ -135,7 +135,7 @@ def client_handle(c):
         os.system(cmd)
         os.system('chmod +x '+os.path.join(respath,'a.out'))
 
-        cmd = 'i686-w64-mingw32-gcc '+arg+' -o '+ os.path.join(respath,'a.exe')+' 2> '+os.path.join(respath,'output_win_err.txt')
+        cmd = 'x86_64-w64-mingw32-gcc '+arg+' -o '+ os.path.join(respath,'a.exe')+' 2> '+os.path.join(respath,'output_win_err.txt')
         os.system(cmd)
 
     if netw == 1:
