@@ -37,6 +37,7 @@ s.listen(5)
 dump.write('\n[{0}]Server started on {1}:{2}\n'.format(str(datetime.datetime.now()),serv_ip,port))
 
 def client_handle(c):
+    c.send("{:<15}".format(client_host).encode())
     inc = c.recv(1024).decode()
     data = inc
     while inc:
@@ -130,10 +131,11 @@ def client_handle(c):
                     print(cmd)
                     os.system(cmd)
 
-        cmd = 'gcc '+arg+' -o '+ os.path.join(respath,'a'+'.out')+' 2> '+os.path.join(respath,'output_linux_err.txt')
+        cmd = 'gcc '+arg+' -o '+ os.path.join(respath,'a.out')+' 2> '+os.path.join(respath,'output_linux_err.txt')
         os.system(cmd)
+        os.system('chmod +x '+os.path.join(respath,'a.out'))
 
-        cmd = 'i686-w64-mingw32-gcc '+arg+' -o '+ os.path.join(respath,'a'+'.exe')+' 2> '+os.path.join(respath,'output_win_err.txt')
+        cmd = 'i686-w64-mingw32-gcc '+arg+' -o '+ os.path.join(respath,'a.exe')+' 2> '+os.path.join(respath,'output_win_err.txt')
         os.system(cmd)
 
     if netw == 1:
@@ -153,7 +155,7 @@ def client_handle(c):
                     response[file]=fileout
         dump.write('[{0}]Sent {3} to {1}:{2}\n'.format(str(datetime.datetime.now()),client_host,client_port,file))
         print('Sending ',file)
-    
+
     response = json.dumps(response).encode('utf-8')
     c.send(response)
     c.send('END'.encode('utf-8'))

@@ -38,12 +38,24 @@ for arg in sys.argv:
 host_det = sys.argv[1]
 host_ip, host_port = host_det.split(':',1)
 socket.inet_aton(host_ip)
-cli_ip = socket.gethostbyname(socket.gethostname()+ ".local")
-if verboseall:
-    print('Client',cli_ip,'online')
 if verboseall:
     print('Connecting to ', host_det)
 
+try:
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    if verboseall:
+        print ("Socket successfully created")
+except socket.error as err:
+    if verboseall:
+        print ("socket creation failed with error %s" %(err))
+
+port = int(host_port)
+
+s.connect((host_ip, port))
+
+cli_ip = s.recv(15).decode().split(' ',1)[0]
+if verboseall:
+    print('Client IP is', cli_ip)
 
 if netw == 1:
     nc_dir_dict[cli_ip]=0
@@ -60,21 +72,10 @@ for file in os.listdir(os.curdir):
             data[file]=f.read()
 data = encrypt(json.dumps(data))
 
-try:
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    if verboseall:
-        print ("Socket successfully created")
-except socket.error as err:
-    if verboseall:
-        print ("socket creation failed with error %s" %(err))
-
-
-
-port = int(host_port)
-
-s.connect((host_ip, port))
 s.send(data.encode())
 s.send('END'.encode())
+
+
 
 if netw==1:
     if verboseall:
@@ -87,7 +88,7 @@ if netw==1:
 
 
 if verboseall:
-    print('Compiling')
+    print('\nCompiling')
 
 while True:
     inc = s.recv(1024).decode('utf-8')
@@ -101,7 +102,8 @@ while True:
     s.close()
     break
 
-
+if inc.endswith('END'):
+    data += inc[:-3]
 response = json.loads(data)
 
 for file in response.keys():
@@ -117,3 +119,6 @@ for file in response.keys():
         if file.endswith('output_linux_err.txt'):
             if verboseall or verboseni:
                 print('\n',response[file])
+
+if os.path.isfile('network-list.ncf'):
+    os.remove('network-list.ncf')
