@@ -1,6 +1,6 @@
 # [Remote-Compiler](https://github.com/Gagan163264/Remote-Compiler.git)
 
-C compiler for LAN multi-client applications, where each client has parts of all files to create an executable
+Command Line C compiler for LAN multi-client applications, where each client has parts of all files to create an executable
 ## Setup
 Download all files using 
 
