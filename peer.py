@@ -2,7 +2,6 @@ import socket
 import sys
 import json
 import os
-from src.auth import encrypt,decrypt
 import shutil
 
 if(len(sys.argv)<=2):
@@ -70,7 +69,7 @@ for file in os.listdir(os.curdir):
             print('Sending',file)
         with open(file,'r',encoding = 'utf-8') as f:
             data[file]=f.read()
-data = encrypt(json.dumps(data))
+data = json.dumps(data)
 
 s.send(data.encode())
 s.send('END'.encode())

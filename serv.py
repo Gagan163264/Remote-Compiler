@@ -1,6 +1,5 @@
 import socket
 import json
-from src.auth import encrypt,decrypt
 import os
 import shutil
 from _thread import *
@@ -47,7 +46,7 @@ def client_handle(c):
             data += inc[:-3]
             break
         data += inc
-    data = json.loads(decrypt(str(data)))
+    data = json.loads(str(data))
     client_path = os.path.join('shared',client_host)
     if os.path.exists(client_path):
         shutil.rmtree(client_path)
